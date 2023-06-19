@@ -1,0 +1,26 @@
+{
+    "name": "charlesaugust44/nubank-php",
+    "description": "Package for accessing Nubank's web API (read-only)",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "CharlesAugust44\\NubankPHP\\": "src/",
+            "Charlesaugust44\\NubankPHP\\Tests\\": "tests"
+        }
+    },
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Charlos Augusto",
+            "email": "carlosaugusto3256@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.0",
+        "chillerlan/php-qrcode": "^4.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": ">=10.1.3"
+    }
+}
