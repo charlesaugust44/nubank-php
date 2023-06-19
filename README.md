@@ -5,7 +5,7 @@ Package for accessing Nubank's web API (read-only)
 # Install
 
 ```
-composer install charlesaugust44\nubankPHP
+composer require charlesaugust44/nubank-php
 ```
 
 # Usage

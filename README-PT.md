@@ -5,7 +5,7 @@ Biblioteca para acessar a API WEB do Nubank (Apenas leitura)
 # Instalação
 
 ```
-composer install charlesaugust44\nubankPHP
+composer require charlesaugust44/nubank-php
 ```
 
 # Uso
