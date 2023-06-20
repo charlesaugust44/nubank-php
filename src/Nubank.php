@@ -1,6 +1,6 @@
 <?php
 
-namespace Charlesaugust44\NubankPHP;
+namespace CharlesAugust44\NubankPHP;
 
 use CharlesAugust44\NubankPHP\Models\AppDiscovery;
 use CharlesAugust44\NubankPHP\Models\Bill;
