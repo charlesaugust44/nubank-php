@@ -41,17 +41,21 @@ class Nubank
     private Client $client;
     private Discovery $discoveryRoutes;
     private AppDiscovery $appDiscoveryRoutes;
-    private Login $loginResponse;
-    private Lift $liftResponse;
+    private ?Login $loginResponse;
+    private ?Lift $liftResponse;
     private ?BillSummary $billSummary;
 
-    public function __construct()
+    public function __construct($skipSessionLoad = false)
     {
         $this->client = new Client([
             'base_uri' => self::BASE_URL,
             'headers' => self::REQUEST_HEADER,
             'http_errors' => true
         ]);
+
+        if ($skipSessionLoad) {
+            return;
+        }
 
         $this->loadSession();
     }
@@ -80,8 +84,12 @@ class Nubank
         }
     }
 
-    public function lift(): void
+    public function lift(string $sessionId = null): void
     {
+        if ($sessionId) {
+            $this->sessionId = $sessionId;
+        }
+
         if ($this->status !== NubankStatus::WAITING_QR) {
             throw new Exception('Login needs to be done before trying to lift the QRCode!');
         }
@@ -170,10 +178,21 @@ class Nubank
         $serialized = file_get_contents(self::SESSION_FILE);
         $data = json_decode($serialized);
 
-        $this->liftResponse = new Lift($data->liftResponse);
-        $this->loginResponse = new Login($data->loginResponse);
+        if ($data->liftResponse) {
+            $this->liftResponse = new Lift($data->liftResponse);
+        }
 
-        $this->status = NubankStatus::SESSION_LOADED;
+        if ($data->loginResponse) {
+            $this->loginResponse = new Login($data->loginResponse);
+        }
+
+        if ($this->loginResponse && $this->liftResponse) {
+            $this->status = NubankStatus::SESSION_LOADED;
+        } elseif ($this->loginResponse) {
+            $this->status = NubankStatus::WAITING_QR;
+            return;
+        }
+
         $this->billSummary = $this->fetchBills();
 
         if ($this->status === NubankStatus::SESSION_LOADED && $this->billSummary) {
