@@ -1,10 +1,10 @@
 <?php
 namespace CharlesAugust44\NubankPHP\Models;
 
-enum NubankStatus
+enum NubankStatus: string
 {
-    case AUTHORIZED;
-    case UNAUTHORIZED;
-    case SESSION_LOADED;
-    case WAITING_QR;
+    case AUTHORIZED = 'Authorized';
+    case UNAUTHORIZED = 'Unauthorized';
+    case SESSION_LOADED = 'Session Loaded';
+    case WAITING_QR = 'Waiting QrCode';
 }
