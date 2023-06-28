@@ -49,16 +49,35 @@ class NubankTest extends TestCase
         $this->assertEquals(NubankStatus::AUTHORIZED, NubankTest::$nu->status);
     }
 
-    public function testFetchBill()
+    public function testFetchOpenBill()
     {
         $this->assertEquals(NubankStatus::AUTHORIZED, NubankTest::$nu->status);
 
+        $bill = $this->fetchBillByState(Bill::STATE_OPEN);
+
+        $this->assertNotNull($bill);
+        $this->assertEquals(Bill::STATE_OPEN, $bill->state);
+        $this->assertNotEmpty($bill->line_items);
+    }
+
+    public function testFetchOverdueBill()
+    {
+        $this->assertEquals(NubankStatus::AUTHORIZED, NubankTest::$nu->status);
+
+        $bill = $this->fetchBillByState(Bill::STATE_OVERDUE);
+
+        $this->assertNotNull($bill);
+        $this->assertEquals(Bill::STATE_OVERDUE, $bill->state);
+        $this->assertNotEmpty($bill->line_items);
+    }
+
+    private function fetchBillByState(string $state): Bill
+    {
         $bills = NubankTest::$nu->fetchBills();
         $bill = null;
 
         foreach ($bills->bills as $billSummary) {
-            echo $billSummary->state . "\n";
-            if ($billSummary->state !== Bill::STATE_OPEN) {
+            if ($billSummary->state !== $state) {
                 continue;
             }
 
@@ -66,7 +85,6 @@ class NubankTest extends TestCase
             break;
         }
 
-        $this->assertNotNull($bill);
-        $this->assertNotEmpty($bill->line_items);
+        return $bill;
     }
 }
