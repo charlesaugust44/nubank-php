@@ -53,6 +53,9 @@ class Nubank
             'http_errors' => true
         ]);
 
+        $this->loginResponse = $this->liftResponse = null;
+        $this->discovery();
+
         if ($skipSessionLoad) {
             return;
         }
@@ -62,7 +65,6 @@ class Nubank
 
     public function login(string $cpf, string $password): void
     {
-        $this->discovery();
         $data = [
             'grant_type' => 'password',
             'login' => $cpf,
@@ -78,6 +80,7 @@ class Nubank
 
             $this->loginResponse = new Login($loginResponse->getBody()->getContents());
             $this->status = NubankStatus::WAITING_QR;
+            $this->saveSession();
         } catch (ClientException $e) {
             $this->status = NubankStatus::UNAUTHORIZED;
             throw $e;
