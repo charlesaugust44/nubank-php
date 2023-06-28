@@ -127,6 +127,12 @@ class Nubank
         fwrite(STDERR, print_r($qr, TRUE));
     }
 
+    public function getAsciiQRCode(bool $invert = false): string
+    {
+        $options = new QROptions($this->getQROptions($invert));
+        return (new QRCode($options))->render($this->sessionId);
+    }
+
     public function getSSID(): string
     {
         $this->sessionId = $this->generateSSID();
@@ -224,8 +230,11 @@ class Nubank
         $this->appDiscoveryRoutes = new AppDiscovery($responses[1]['value']->getBody()->getContents());
     }
 
-    private function getQROptions(): array
+    private function getQROptions(bool $invert = false): array
     {
+        $black = $invert ? '  ' : '██';
+        $white = $invert ? '██' : '  ';
+
         return [
             'version' => 3,
             'outputType' => QRCode::OUTPUT_STRING_TEXT,
@@ -233,27 +242,27 @@ class Nubank
             'eol' => Color::colorize('reset', "\x00\n"),
             'moduleValues' => [
                 // light
-                QRMatrix::M_NULL => '██', // 0
-                QRMatrix::M_DATA => '██', // 4
-                QRMatrix::M_FINDER => '██', // 6
-                QRMatrix::M_SEPARATOR => '██', // 8
-                QRMatrix::M_ALIGNMENT => '██', // 10
-                QRMatrix::M_TIMING => '██', // 12
-                QRMatrix::M_FORMAT => '██', // 14
-                QRMatrix::M_VERSION => '██', // 16
-                QRMatrix::M_QUIETZONE => '██', // 18
-                QRMatrix::M_LOGO => '██', // 20
-                QRMatrix::M_TEST => '██', // 255
+                QRMatrix::M_NULL => $black, // 0
+                QRMatrix::M_DATA => $black, // 4
+                QRMatrix::M_FINDER => $black, // 6
+                QRMatrix::M_SEPARATOR => $black, // 8
+                QRMatrix::M_ALIGNMENT => $black, // 10
+                QRMatrix::M_TIMING => $black, // 12
+                QRMatrix::M_FORMAT => $black, // 14
+                QRMatrix::M_VERSION => $black, // 16
+                QRMatrix::M_QUIETZONE => $black, // 18
+                QRMatrix::M_LOGO => $black, // 20
+                QRMatrix::M_TEST => $black, // 255
                 // dark
-                QRMatrix::M_DARKMODULE << 8 => '  ',  // 512
-                QRMatrix::M_DATA << 8 => '  ',  // 1024
-                QRMatrix::M_FINDER << 8 => '  ',  // 1536
-                QRMatrix::M_ALIGNMENT << 8 => '  ',  // 2560
-                QRMatrix::M_TIMING << 8 => '  ',  // 3072
-                QRMatrix::M_FORMAT << 8 => '  ',  // 3584
-                QRMatrix::M_VERSION << 8 => '  ',  // 4096
-                QRMatrix::M_FINDER_DOT << 8 => '  ',  // 5632
-                QRMatrix::M_TEST << 8 => '  ',  // 65280
+                QRMatrix::M_DARKMODULE << 8 => $white,  // 512
+                QRMatrix::M_DATA << 8 => $white,  // 1024
+                QRMatrix::M_FINDER << 8 => $white,  // 1536
+                QRMatrix::M_ALIGNMENT << 8 => $white,  // 2560
+                QRMatrix::M_TIMING << 8 => $white,  // 3072
+                QRMatrix::M_FORMAT << 8 => $white,  // 3584
+                QRMatrix::M_VERSION << 8 => $white,  // 4096
+                QRMatrix::M_FINDER_DOT << 8 => $white,  // 5632
+                QRMatrix::M_TEST << 8 => $white,  // 65280
             ],
         ];
     }
