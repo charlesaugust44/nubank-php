@@ -7,6 +7,7 @@ class BillLink extends Base
     public Href $self;
     public Href $barcode;
     public Href $boleto_email;
+    public ?Href $invoice_email;
 
     protected function getClassName(): string
     {
