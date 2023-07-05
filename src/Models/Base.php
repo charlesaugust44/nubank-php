@@ -2,7 +2,7 @@
 
 namespace CharlesAugust44\NubankPHP\Models;
 
-class Base
+abstract class Base
 {
     public function __construct(object|string|array $data = null)
     {
@@ -37,13 +37,14 @@ class Base
         $reflection = new \ReflectionClass($class);
 
         foreach ($data as $key => $value) {
+            $jsonType = $this->matchJsonType($value);
+
             if (!$reflection->hasProperty($key)) {
-                error_log("JSON field $key does not exist as property on class $class\n");
+                error_log("JSON field $key of type $jsonType does not exist as property on class $class\n");
                 continue;
             }
 
             $classType = $reflection->getProperty($key)->getType()->getName();
-            $jsonType = $this->matchJsonType($value);
 
             if ($jsonType !== 'object' && $classType !== $jsonType) {
                 error_log("JSON field $key of type $jsonType is different than class type $classType\n");

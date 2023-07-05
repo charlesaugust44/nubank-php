@@ -6,6 +6,7 @@ use CharlesAugust44\NubankPHP\Models\AppDiscovery;
 use CharlesAugust44\NubankPHP\Models\Bill;
 use CharlesAugust44\NubankPHP\Models\BillSummary;
 use CharlesAugust44\NubankPHP\Models\Discovery;
+use CharlesAugust44\NubankPHP\Models\Event;
 use CharlesAugust44\NubankPHP\Models\Lift;
 use CharlesAugust44\NubankPHP\Models\Login;
 use CharlesAugust44\NubankPHP\Models\NubankStatus;
@@ -14,6 +15,7 @@ use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\Utils;
 use PHPUnit\Logging\Exception;
 use PHPUnit\Util\Color;
@@ -139,6 +141,9 @@ class Nubank
         return $this->sessionId;
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public function fetchBills(): BillSummary
     {
         try {
@@ -152,7 +157,6 @@ class Nubank
                 $this->status = NubankStatus::UNAUTHORIZED;
             }
             throw $e;
-
         }
     }
 
@@ -170,6 +174,33 @@ class Nubank
             }
             throw $e;
         }
+    }
+
+    /**
+     * @return Event[]
+     * @throws GuzzleException
+     */
+    public function fetchEvents(): array
+    {
+        try {
+            $response = $this->client->request('GET', $this->liftResponse->_links['events']['href'], [
+                'headers' => $this->getAuthorizedHeader()
+            ]);
+        } catch (ClientException $e) {
+            if ($e->getCode() === 401) {
+                $this->status = NubankStatus::UNAUTHORIZED;
+            }
+            throw $e;
+        }
+
+        $eventObject = json_decode($response->getBody()->getContents());
+        $events = [];
+
+        foreach ($eventObject->events as $event) {
+            $events[] = new Event($event);
+        }
+
+        return $events;
     }
 
     public function getBillSummary(): ?BillSummary
@@ -202,9 +233,14 @@ class Nubank
             return;
         }
 
-        $this->billSummary = $this->fetchBills();
+        try {
+            $this->billSummary = $this->fetchBills();
+        } catch (GuzzleException $e) {
+            $this->status = NubankStatus::UNAUTHORIZED;
+            return;
+        }
 
-        if ($this->status === NubankStatus::SESSION_LOADED && $this->billSummary) {
+        if ($this->status === NubankStatus::SESSION_LOADED) {
             $this->status = NubankStatus::AUTHORIZED;
         }
     }

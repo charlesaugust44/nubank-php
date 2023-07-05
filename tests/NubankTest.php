@@ -25,7 +25,7 @@ class NubankTest extends TestCase
             $this->assertEquals(NubankStatus::UNAUTHORIZED, NubankTest::$nu->status);
         }
 
-        NubankTest::$nu->login('cpf', 'password');
+        NubankTest::$nu->login('04814734590', 'SquareBox@582469317');
         NubankTest::$nu->printQRCodeSSID();
 
         $this->assertEquals(NubankStatus::WAITING_QR, NubankTest::$nu->status);
@@ -69,6 +69,21 @@ class NubankTest extends TestCase
         $this->assertNotNull($bill);
         $this->assertEquals(Bill::STATE_OVERDUE, $bill->state);
         $this->assertNotEmpty($bill->line_items);
+    }
+
+    public function testFetchEvents()
+    {
+        $this->assertEquals(NubankStatus::AUTHORIZED, NubankTest::$nu->status);
+
+        $events = self::$nu->fetchEvents();
+
+        $stringDate = $events[0]->time;
+        $dateParts = explode("-", substr($stringDate, 0, 10));
+        $year = $dateParts[0];
+        $month = $dateParts[1];
+
+        $this->assertEquals(date('Y'), $year);
+        $this->assertEquals(date('m'), $month);
     }
 
     private function fetchBillByState(string $state): Bill

@@ -1,7 +1,7 @@
 <?php
 
 namespace CharlesAugust44\NubankPHP\Models;
-
+/** @property string[] $faq */
 class AppDiscovery extends Base
 {
     public string $scopes;
@@ -61,6 +61,7 @@ class AppDiscovery extends Base
     public string $produce_marketing_event;
     public string $force_reset_password_without_revoking_token;
     public string $unlogged_area;
+    public string $start_screen_v4;
 
     protected function getClassName(): string
     {

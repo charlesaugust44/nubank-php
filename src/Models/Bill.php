@@ -1,7 +1,8 @@
 <?php
 
 namespace CharlesAugust44\NubankPHP\Models;
-
+/** @property BillItem[] $line_items */
+/** @property string[] $installment_button */
 class Bill extends Base
 {
     public ?string $id = null;
@@ -9,6 +10,7 @@ class Bill extends Base
     public Summary $summary;
     public BillLink $_links;
     public ?array $line_items = null;
+    public ?array $installment_button = null;
 
     public const STATE_OPEN = 'open';
     public const STATE_FUTURE = 'future';
@@ -37,6 +39,7 @@ class Bill extends Base
     {
         return match ($key) {
             'line_items' => BillItem::class,
+            'installment_button' => 'string',
             default => null
         };
     }

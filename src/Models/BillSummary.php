@@ -2,6 +2,7 @@
 
 namespace CharlesAugust44\NubankPHP\Models;
 /** @property Bill[] $bills */
+/** @property string[][] $bills */
 class BillSummary extends Base
 {
     public array $bills;
