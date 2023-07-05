@@ -22,8 +22,6 @@ class Nubank
 {
     public NubankStatus $status = NubankStatus::UNAUTHORIZED;
 
-
-    private const SESSION_FILE = './nubank.json';
     private const SECRET = "yQPeLzoHuJzlMMSAjC-LgNUJdUecx8XO";
     private const BASE_URL = "https://prod-global-webapp-proxy.nubank.com.br";
     private const DISCOVERY_ROUTE = "/api/discovery";
@@ -37,6 +35,7 @@ class Nubank
         "Connection" => "keep-alive"
     ];
 
+    private string $sessionFile;
     private string $sessionId;
     private Client $client;
     private Discovery $discoveryRoutes;
@@ -45,13 +44,14 @@ class Nubank
     private ?Lift $liftResponse;
     private ?BillSummary $billSummary;
 
-    public function __construct($skipSessionLoad = false)
+    public function __construct($skipSessionLoad = false, string $sessionFile = './nubank.json')
     {
         $this->client = new Client([
             'base_uri' => self::BASE_URL,
             'headers' => self::REQUEST_HEADER,
             'http_errors' => true
         ]);
+        $this->sessionFile = $sessionFile;
 
         $this->loginResponse = $this->liftResponse = null;
         $this->discovery();
@@ -179,12 +179,12 @@ class Nubank
 
     private function loadSession(): void
     {
-        if (!file_exists(self::SESSION_FILE)) {
+        if (!file_exists($this->sessionFile)) {
             $this->status = NubankStatus::UNAUTHORIZED;
             return;
         }
 
-        $serialized = file_get_contents(self::SESSION_FILE);
+        $serialized = file_get_contents($this->sessionFile);
         $data = json_decode($serialized);
 
         if ($data->liftResponse) {
@@ -211,7 +211,7 @@ class Nubank
 
     private function saveSession(): void
     {
-        file_put_contents(self::SESSION_FILE, json_encode([
+        file_put_contents($this->sessionFile, json_encode([
             'liftResponse' => $this->liftResponse,
             'loginResponse' => $this->loginResponse
         ]));
